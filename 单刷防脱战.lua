@@ -40,24 +40,10 @@ end,
 
 --每帧都会调用（1秒16帧)。没有参数。由于调用频繁，如果实现复杂，对性能有一定影响。
 ["OnTick"] = function()
-local player = GetClientPlayer()
-local target, targetClass = s_util.GetTarget(player)
-if not player.bFightState and target and IsEnemy(player.dwID, target.dwID) then 
-Marco_StarPointX=target.nX
-Marco_StarPointY=target.nY
-end
-if s_util.GetTimer("aaa") > 1000 and s_util.GetTimer("aaa") < 10000 then
-   OnAddOnUseSkill(9003)
-end
 end,
 
 --有警告信息会调用，参数：类型，内容
 ["OnWarning"] = function(szType, szText)
-    local player = GetClientPlayer()
-	if player.bFightState and string.find(szText, "即将出战斗区域") then
-    s_util.TurnTo(Marco_StarPointX, Marco_StarPointY)
-	s_util.SetTimer("aaa")
-	end
 end,
 
 --有聊天信息会调用，参数： 对象ID，内容，名字，频道
@@ -66,6 +52,7 @@ end,
 
 --施放技能调用， 参数：对象ID， 技能ID， 技能等级
 ["OnCastSkill"] = function(dwID, dwSkillID, dwLevel)
+	if dwSkillID = 2645
 end,
 
 --NPC进入场景会调用，参数：NPCID
