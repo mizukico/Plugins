@@ -1,22 +1,25 @@
 --插件名字
-local szPluginName = "单刷防脱战"
+local szPluginName = "明教-PVP"
 
---存放boss信息
-local tBossID = {}
-
-local UpdatePrepare = function(obj, tData)
-	local bPrepare, dwSkillId, dwLevel, nProgress, nActionState =  GetSkillOTActionState(obj)
-	if bPrepare then
-		if not tData.bPrepare then		--如果上次不是读条状态
-			local skillName = Table_GetSkillName(skillID, level)
-			s_Output(obj.szName.." 开始读条: "..skillName..", 技能ID: "..skillID..", 技能等级: "..level..", 读条百分比: "..nProgress)
+local function UpdateSkill (ID,dwSkillID,SkillID,Dis,bol)
+	local wanjia = GetPlayer(ID)
+	local target, targetClass = s_util.GetTarget(wanjia)
+	local player = GetClientPlayer()
+	local distance = s_util.GetDistance(player,wanjia)
+	if not bol then
+		if SkillID == dwSkillID and distance<=Dis and target.dwID==player.dwID then
+			return true
+		else
+			return false
 		end
-		tData.bPrepare = true
 	else
-		tData.bPrepare = false
+		if SkillID == dwSkillID and distance<=Dis then
+			return true
+		else
+			return false
+		end
 	end
 end
-
 
 ------------------------------------------------插件表，设置插件信息和回调函数------------------------------------------------
 local tPlugin = {
@@ -52,7 +55,23 @@ end,
 
 --施放技能调用， 参数：对象ID， 技能ID， 技能等级
 ["OnCastSkill"] = function(dwID, dwSkillID, dwLevel)
-	if dwSkillID = 2645
+	local player = GetClientPlayer()
+	if not IsPlayer(dwID) or not IsEnemy(player.dwID,dwID) then return end	--过滤掉非敌对玩家
+	--撼地 20尺，千斤坠 20尺，疾 15尺
+	if UpdateSkill(dwID,dwSkillID,13424,20) or UpdateSkill(dwID,dwSkillID,18604,20) or UpdateSkill(dwID,dwSkillID,424,15) then 
+		s_util.SetTimer("tkongzhi1")
+		s_Output("tkongzhi1")
+	end
+	--盾猛 12尺，龙跃于渊 20尺，龙战于野 20尺，棒打狗头 20尺，割据秦宫 10尺，断魂刺 27尺，破坚阵 4尺
+	if UpdateSkill(dwID,dwSkillID,13046,12) or UpdateSkill(dwID,dwSkillID,5262,20) or UpdateSkill(dwID,dwSkillID,5266,20) or UpdateSkill(dwID,dwSkillID,5259,20) or UpdateSkill(dwID,dwSkillID,16479,10) or UpdateSkill(dwID,dwSkillID,428,27) or UpdateSkill(dwID,dwSkillID,426,4) then 
+		s_util.SetTimer("tkongzhi2")
+		s_Output("tkongzhi2")
+	end
+	--浮光掠影 30尺，冥月度心 12尺，紫气东来 20尺，擒龙诀 6尺，乱洒 20尺，梵音 20尺
+	if UpdateSkill(dwID,dwSkillID,3112,30) or UpdateSkill(dwID,dwSkillID,18629,12) or UpdateSkill(dwID,dwSkillID,2681,20) or UpdateSkill(dwID,dwSkillID,260,6) or UpdateSkill(dwID,dwSkillID,2645,20) or UpdateSkill(dwID,dwSkillID,568,20) then 
+		s_util.SetTimer("tbaofa1")
+		s_Output("tbaofa1")
+	end
 end,
 
 --NPC进入场景会调用，参数：NPCID
@@ -65,8 +84,6 @@ end,
 
 --菜单点击调试当前插件会调用，可以在这里输出一些调试信息
 ["OnDebug"] = function()
-	s_Output(Marco_StarPointX)
-	s_Output(Marco_StarPointY)
 end,
 }
 

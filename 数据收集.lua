@@ -1,63 +1,63 @@
---æ’ä»¶åå­—
-local szPluginName = "å‰¯æœ¬æ•°æ®æ”¶é›†"
+--²å¼şÃû×Ö
+local szPluginName = "¸±±¾Êı¾İÊÕ¼¯"
 
---ä¸éœ€è¦å…³æ³¨çš„NPCï¼Œç”¨äºè¿‡æ»¤ä¿¡æ¯ï¼Œçœå¾—æ— ç”¨ä¿¡æ¯å¤ªå¤š
+--²»ĞèÒª¹Ø×¢µÄNPC£¬ÓÃÓÚ¹ıÂËĞÅÏ¢£¬Ê¡µÃÎŞÓÃĞÅÏ¢Ì«¶à
 local tNotCareNpc = {
-------------------------è¿™éƒ¨åˆ†æ˜¯é€šç”¨çš„------------------------
-[4976] = "æ°”åœºç”Ÿå¤ªæ",
-[4977] = "æ°”åœºç ´è‹ç©¹",
-[4980] = "æ°”åœºç¢æ˜Ÿè¾°",
-[4982] = "æ°”åœºé•‡å±±æ²³",
-[4981] = "æ°”åœºåæ—¥æœˆ",
-[3080] = "æ°”åœºåŒ–ä¸‰æ¸…",
-[57807] = "æ°”åœºè¡Œå¤©é“",
-[58294] = "æ°”åœºå‰‘å‡ºé¸¿è’™",
-[16174] = "åƒæœºå˜åº•åº§",
-[16175] = "åƒæœºå˜è¿å¼©",
-[16176] = "åƒæœºå˜é‡å¼©",
-[16177] = "åƒæœºå˜æ¯’ç…",
-[9997] = "å¤©è››",
-[9956] = "åœ£è",
-[9996] = "é£èœˆ",
-[9998] = "çµè›‡",
-[9999] = "ç‰èŸ¾",
-[12944] = "ç¢§è¶",
-[20614] = "æµ·æ£ -é›²è”ç‰ç›†",
-[20610] = "æµ·æ£ å¹¼èŠ½-é›²è”ç‰ç›†",
+------------------------Õâ²¿·ÖÊÇÍ¨ÓÃµÄ------------------------
+[4976] = "Æø³¡ÉúÌ«¼«",
+[4977] = "Æø³¡ÆÆ²Ôñ·",
+[4980] = "Æø³¡ËéĞÇ³½",
+[4982] = "Æø³¡ÕòÉ½ºÓ",
+[4981] = "Æø³¡ÍÌÈÕÔÂ",
+[3080] = "Æø³¡»¯ÈıÇå",
+[57807] = "Æø³¡ĞĞÌìµÀ",
+[58294] = "Æø³¡½£³öºèÃÉ",
+[16174] = "Ç§»ú±äµ××ù",
+[16175] = "Ç§»ú±äÁ¬åó",
+[16176] = "Ç§»ú±äÖØåó",
+[16177] = "Ç§»ú±ä¶¾É·",
+[9997] = "ÌìÖë",
+[9956] = "Ê¥Ğ«",
+[9996] = "·çòÚ",
+[9998] = "ÁéÉß",
+[9999] = "Óñó¸",
+[12944] = "±Ìµû",
+[20614] = "º£ÌÄ-ë…ÀóÓñÅè",
+[20610] = "º£ÌÄÓ×Ñ¿-ë…ÀóÓñÅè",
 
-------------------------æ¯ä¸ªå‰¯æœ¬ä¸åŒ------------------------
+------------------------Ã¿¸ö¸±±¾²»Í¬------------------------
 }
 
---ä¸å…³æ³¨çš„æŠ€èƒ½
+--²»¹Ø×¢µÄ¼¼ÄÜ
 local tNotCareSkill = {
-[28] = "æ”»å‡»",
+[28] = "¹¥»÷",
 }
 
---å­˜æ”¾bossä¿¡æ¯
+--´æ·ÅbossĞÅÏ¢
 local tBossID = {}
 
---è‡ªå·±çš„ID
+--×Ô¼ºµÄID
 local dwMyID = nil
 
 
 local UpdateBuffs = function(obj, tData)
 	local tBuffInfo = s_util.GetBuffInfo(obj)
 	for k,v in pairs(tBuffInfo) do
-		--å¦‚æœæ–°æ·»åŠ çš„ï¼Œè¾“å‡ºæ¶ˆæ¯
+		--Èç¹ûĞÂÌí¼ÓµÄ£¬Êä³öÏûÏ¢
 		if not tData.tBuff[k] then
 			local buffName = Table_GetBuffName(v.dwID, v.nLevel)
-			s_Output(obj.szName.." æ·»åŠ Buff: "..buffName..", BuffID: "..v.dwID..", å‰©ä½™æ—¶é—´(ç§’): "..v.nLeftTime..", ç­‰çº§: "..v.nLevel..", å±‚æ•°: "..v.nStackNum..", æºID: "..v.dwSkillSrcID)
+			s_Output(obj.szName.." Ìí¼ÓBuff: "..buffName..", BuffID: "..v.dwID..", Ê£ÓàÊ±¼ä(Ãë): "..v.nLeftTime..", µÈ¼¶: "..v.nLevel..", ²ãÊı: "..v.nStackNum..", Ô´ID: "..v.dwSkillSrcID)
 		end
 	end
-	tData.tBuff = tBuffInfo			--è®°å½•è¿™æ¬¡çš„buffè¡¨
+	tData.tBuff = tBuffInfo			--¼ÇÂ¼Õâ´ÎµÄbuff±í
 end
 
 local UpdatePrepare = function(obj, tData)
 	local bPrepare, dwSkillId, dwLevel, nProgress, nActionState =  GetSkillOTActionState(obj)
 	if bPrepare then
-		if not tData.bPrepare then		--å¦‚æœä¸Šæ¬¡ä¸æ˜¯è¯»æ¡çŠ¶æ€
+		if not tData.bPrepare then		--Èç¹ûÉÏ´Î²»ÊÇ¶ÁÌõ×´Ì¬
 			local skillName = Table_GetSkillName(dwSkillId, dwLevel)
-			s_Output(obj.szName.." å¼€å§‹è¯»æ¡: "..skillName..", æŠ€èƒ½ID: "..dwSkillId..", æŠ€èƒ½ç­‰çº§: "..dwLevel..", è¯»æ¡ç™¾åˆ†æ¯”: "..nProgress)
+			s_Output(obj.szName.." ¿ªÊ¼¶ÁÌõ: "..skillName..", ¼¼ÄÜID: "..dwSkillId..", ¼¼ÄÜµÈ¼¶: "..dwLevel..", ¶ÁÌõ°Ù·Ö±È: "..nProgress)
 		end
 		tData.bPrepare = true
 	else
@@ -66,132 +66,132 @@ local UpdatePrepare = function(obj, tData)
 end
 
 
-------------------------------------------------æ’ä»¶è¡¨ï¼Œè®¾ç½®æ’ä»¶ä¿¡æ¯å’Œå›è°ƒå‡½æ•°------------------------------------------------
+------------------------------------------------²å¼ş±í£¬ÉèÖÃ²å¼şĞÅÏ¢ºÍ»Øµ÷º¯Êı------------------------------------------------
 local tPlugin = {
---æ’ä»¶åœ¨èœå•ä¸­æ˜¾ç¤ºçš„åå­—ã€‚å¿…é¡»è®¾ç½®
+--²å¼şÔÚ²Ëµ¥ÖĞÏÔÊ¾µÄÃû×Ö¡£±ØĞëÉèÖÃ
 ["szName"] = szPluginName,
 
---æ’ä»¶ç±»å‹ã€‚  1(5äººå‰¯æœ¬)ï¼Œ 2(10äººå‰¯æœ¬)ï¼Œ 3(25äººå‰¯æœ¬)ï¼Œ4(ç«æŠ€åœº)ï¼Œ5(å…¶ä»–)ã€‚å¿…é¡»è®¾ç½®
+--²å¼şÀàĞÍ¡£  1(5ÈË¸±±¾)£¬ 2(10ÈË¸±±¾)£¬ 3(25ÈË¸±±¾)£¬4(¾º¼¼³¡)£¬5(ÆäËû)¡£±ØĞëÉèÖÃ
 ["nType"] = 5,
 
---ç»‘å®šçš„åœ°å›¾IDã€‚è¿›å…¥å¯¹åº”åœ°å›¾è‡ªåŠ¨å¯ç”¨ã€‚è¿™ä¸ªæ˜¯å¯é€‰çš„ï¼Œæ³¨æ„ä¸è¦é‡å¤ã€‚å¦‚æœæ²¡æœ‰è®¾ç½®ï¼Œä¹Ÿå¯ä»¥åœ¨æ¸¸æˆä¸­æ‰‹åŠ¨å¼€å¯æ’ä»¶
+--°ó¶¨µÄµØÍ¼ID¡£½øÈë¶ÔÓ¦µØÍ¼×Ô¶¯ÆôÓÃ¡£Õâ¸öÊÇ¿ÉÑ¡µÄ£¬×¢Òâ²»ÒªÖØ¸´¡£Èç¹ûÃ»ÓĞÉèÖÃ£¬Ò²¿ÉÒÔÔÚÓÎÏ·ÖĞÊÖ¶¯¿ªÆô²å¼ş
 --["dwMapID"] = 262,
 
---åˆå§‹åŒ–å‡½æ•°ï¼Œå¯ç”¨æ’ä»¶ä¼šè°ƒç”¨ã€‚æ²¡æœ‰å‚æ•°ã€‚è¿”å›ä¸€ä¸ªboolå€¼ï¼ŒæŒ‡ç¤ºæ’ä»¶æ˜¯å¦åˆå§‹åŒ–æˆåŠŸã€‚å¦‚æœè¿”å›falseï¼Œæ’ä»¶ä¸ä¼šå¯ç”¨ã€‚å¯ä»¥åœ¨è¿™é‡Œæ£€æŸ¥æ’ä»¶ä½¿ç”¨çš„å¿…è¦æ¡ä»¶ï¼ˆæ¯”å¦‚åœ°å›¾IDå¯¹ä¸å¯¹ä¹‹ç±»çš„ï¼‰
+--³õÊ¼»¯º¯Êı£¬ÆôÓÃ²å¼ş»áµ÷ÓÃ¡£Ã»ÓĞ²ÎÊı¡£·µ»ØÒ»¸öboolÖµ£¬Ö¸Ê¾²å¼şÊÇ·ñ³õÊ¼»¯³É¹¦¡£Èç¹û·µ»Øfalse£¬²å¼ş²»»áÆôÓÃ¡£¿ÉÒÔÔÚÕâÀï¼ì²é²å¼şÊ¹ÓÃµÄ±ØÒªÌõ¼ş£¨±ÈÈçµØÍ¼ID¶Ô²»¶ÔÖ®ÀàµÄ£©
 ["OnInit"] = function()
-	--åˆ¤æ–­æ˜¯å¦åœ¨æ¸¸æˆä¸­
+	--ÅĞ¶ÏÊÇ·ñÔÚÓÎÏ·ÖĞ
 	local player = GetClientPlayer()
 	if not player then return false end
 
-	--è®°å½•è‡ªå·±çš„ID
+	--¼ÇÂ¼×Ô¼ºµÄID
 	dwMyID = player.dwID
 
-	--è·å–å‘¨å›´çš„boss
+	--»ñÈ¡ÖÜÎ§µÄboss
 	for _,v in ipairs(GetAllNpc()) do
-		if v.nIntensity == 6 then			--å¦‚æœæ˜¯æ•Œå¯¹Boss
+		if v.nIntensity == 6 then			--Èç¹ûÊÇµĞ¶ÔBoss
 			if not tBossID[v.dwID] then
 				tBossID[v.dwID] = { tBuff = {}, tSkill = {} }
 			end
 		end
 	end
 
-	--è¾“å‡ºä¿¡æ¯
-	s_util.OutputSysMsg("æ’ä»¶ "..szPluginName.." å·²å¯ç”¨")
-	s_util.OutputSysMsg("æ¬¢è¿ "..player.szName.." ä½¿ç”¨æœ¬æ’ä»¶")
-	s_util.OutputSysMsg("æ’ä»¶ä½œè€…ï¼šxxx")
+	--Êä³öĞÅÏ¢
+	s_util.OutputSysMsg("²å¼ş "..szPluginName.." ÒÑÆôÓÃ")
+	s_util.OutputSysMsg("»¶Ó­ "..player.szName.." Ê¹ÓÃ±¾²å¼ş")
+	s_util.OutputSysMsg("²å¼ş×÷Õß£ºxxx")
 	return true
 end,
 
---æ¯å¸§éƒ½ä¼šè°ƒç”¨ï¼ˆ1ç§’16å¸§)ã€‚æ²¡æœ‰å‚æ•°ã€‚ç”±äºè°ƒç”¨é¢‘ç¹ï¼Œå¦‚æœå®ç°å¤æ‚ï¼Œå¯¹æ€§èƒ½æœ‰ä¸€å®šå½±å“ã€‚
+--Ã¿Ö¡¶¼»áµ÷ÓÃ£¨1Ãë16Ö¡)¡£Ã»ÓĞ²ÎÊı¡£ÓÉÓÚµ÷ÓÃÆµ·±£¬Èç¹ûÊµÏÖ¸´ÔÓ£¬¶ÔĞÔÄÜÓĞÒ»¶¨Ó°Ïì¡£
 ["OnTick"] = function()
-	--è®°å½•bossçš„buffå’Œè¯»æ¡
+	--¼ÇÂ¼bossµÄbuffºÍ¶ÁÌõ
 	for k,v in pairs(tBossID) do
 		local boss = GetNpc(k)
 		if boss then
-			UpdateBuffs(boss, v)			--æ›´æ–°buffä¿¡æ¯
-			UpdatePrepare(boss, v)			--æ›´æ–°è¯»æ¡æ•°æ®
+			UpdateBuffs(boss, v)			--¸üĞÂbuffĞÅÏ¢
+			UpdatePrepare(boss, v)			--¸üĞÂ¶ÁÌõÊı¾İ
 		end
 	end
 end,
 
---æœ‰è­¦å‘Šä¿¡æ¯ä¼šè°ƒç”¨ï¼Œå‚æ•°ï¼šç±»å‹ï¼Œå†…å®¹
+--ÓĞ¾¯¸æĞÅÏ¢»áµ÷ÓÃ£¬²ÎÊı£ºÀàĞÍ£¬ÄÚÈİ
 ["OnWarning"] = function(szType, szText)
 	s_Output("OnWarning: "..szText)
 end,
 
---æœ‰èŠå¤©ä¿¡æ¯ä¼šè°ƒç”¨ï¼Œå‚æ•°ï¼š å¯¹è±¡IDï¼Œå†…å®¹ï¼Œåå­—ï¼Œé¢‘é“
+--ÓĞÁÄÌìĞÅÏ¢»áµ÷ÓÃ£¬²ÎÊı£º ¶ÔÏóID£¬ÄÚÈİ£¬Ãû×Ö£¬ÆµµÀ
 ["OnTalk"] = function(dwID, szText, szName, nChannel)
-	--if IsPlayer(dwID) then return end									--è¿‡æ»¤æ‰ç©å®¶çš„èŠå¤©ä¿¡æ¯
-	if tBossID[dwID] then				--åªè¾“å‡ºBossè¯´çš„è¯
-		s_Output("OnTalk: "..szName.." è¯´ "..szText..", é¢‘é“: "..nChannel)
+	--if IsPlayer(dwID) then return end									--¹ıÂËµôÍæ¼ÒµÄÁÄÌìĞÅÏ¢
+	if tBossID[dwID] then				--Ö»Êä³öBossËµµÄ»°
+		s_Output("OnTalk: "..szName.." Ëµ "..szText..", ÆµµÀ: "..nChannel)
 	end
 end,
 
---æ–½æ”¾æŠ€èƒ½è°ƒç”¨ï¼Œ å‚æ•°ï¼šå¯¹è±¡IDï¼Œ æŠ€èƒ½IDï¼Œ æŠ€èƒ½ç­‰çº§
+--Ê©·Å¼¼ÄÜµ÷ÓÃ£¬ ²ÎÊı£º¶ÔÏóID£¬ ¼¼ÄÜID£¬ ¼¼ÄÜµÈ¼¶
 ["OnCastSkill"] = function(dwID, dwSkillID, dwLevel)
-	--if IsPlayer(dwID) then return end				--è¿‡æ»¤æ‰ç©å®¶
-	if tNotCareSkill[dwID] then return end			--è¿‡æ»¤æ‰ä¸å…³æ³¨çš„æŠ€èƒ½
+	--if IsPlayer(dwID) then return end				--¹ıÂËµôÍæ¼Ò
+	if tNotCareSkill[dwID] then return end			--¹ıÂËµô²»¹Ø×¢µÄ¼¼ÄÜ
 	local tData = tBossID[dwID]
-	if tData then									--åªè¾“å‡ºBoss
+	if tData then									--Ö»Êä³öBoss
 		local boss = GetNpc(dwID)
 		if boss then
 			if not tData.tSkill[dwSkillID] then tData.tSkill[dwSkillID] = {} end
 			local tSkillData = tData.tSkill[dwSkillID]
-			local lastCastTime = tSkillData.lastCastTime or 0				--ä¸Šæ¬¡é‡Šæ”¾æ—¶é—´
-			local currTime = GetTickCount()							--å½“å‰æ—¶é—´ï¼ˆæ¯«ç§’ï¼‰
+			local lastCastTime = tSkillData.lastCastTime or 0				--ÉÏ´ÎÊÍ·ÅÊ±¼ä
+			local currTime = GetTickCount()							--µ±Ç°Ê±¼ä£¨ºÁÃë£©
 			local skillName = Table_GetSkillName(dwSkillID, dwLevel)
-			s_Output(boss.szName.." æ–½æ”¾æŠ€èƒ½: "..skillName..", ID: "..dwSkillID..", ç­‰çº§: "..dwLevel..", å½“å‰æ—¶é—´: "..currTime..", å’Œä¸Šæ¬¡é—´éš”: "..(currTime - lastCastTime))
-			tSkillData.lastCastTime = currTime			--è®°å½•æ–½æ”¾æ—¶é—´
+			s_Output(boss.szName.." Ê©·Å¼¼ÄÜ: "..skillName..", ID: "..dwSkillID..", µÈ¼¶: "..dwLevel..", µ±Ç°Ê±¼ä: "..currTime..", ºÍÉÏ´Î¼ä¸ô: "..(currTime - lastCastTime))
+			tSkillData.lastCastTime = currTime			--¼ÇÂ¼Ê©·ÅÊ±¼ä
 		end
 	end
 end,
 
---NPCè¿›å…¥åœºæ™¯ä¼šè°ƒç”¨ï¼Œå‚æ•°ï¼šNPCID
+--NPC½øÈë³¡¾°»áµ÷ÓÃ£¬²ÎÊı£ºNPCID
 ["OnNpcEnter"] = function(dwID)
 	local npc = GetNpc(dwID)
 	if npc then
-		if npc.nIntensity == 6 then			--å¦‚æœæ˜¯æ•Œå¯¹Boss
+		if npc.nIntensity == 6 then			--Èç¹ûÊÇµĞ¶ÔBoss
 			if not tBossID[dwID] then
-				tBossID[dwID] = { tBuff = {}, tSkill = {} }			--bossæ•°æ®æ’å…¥è¡¨
+				tBossID[dwID] = { tBuff = {}, tSkill = {} }			--bossÊı¾İ²åÈë±í
 			end
 		end
 		local dwTempID = npc.dwTemplateID
-		if tNotCareNpc[dwTempID] then return end		--è¿‡æ»¤æ‰ä¸å…³æ³¨çš„NPCå‡ºç°ä¿¡æ¯
-		s_Output("NPCå‡ºç°: ".."åå­—: "..npc.szName..", æ¨¡æ¿ID: "..dwTempID..", å¯¹è±¡ID: "..dwID)
+		if tNotCareNpc[dwTempID] then return end		--¹ıÂËµô²»¹Ø×¢µÄNPC³öÏÖĞÅÏ¢
+		s_Output("NPC³öÏÖ: ".."Ãû×Ö: "..npc.szName..", Ä£°åID: "..dwTempID..", ¶ÔÏóID: "..dwID)
 	end
 end,
 
---NPCç¦»å¼€åœºæ™¯ä¼šè°ƒç”¨ï¼Œå‚æ•°ï¼šNPCIDã€‚è¿™é‡Œä¸è¦å†è·å–å¯¹è±¡ï¼Œåº”è¯¥æ‰§è¡Œå’Œè¿™ä¸ªIDæœ‰å…³çš„ä¸€äº›æ¸…ç†å·¥ä½œã€‚
+--NPCÀë¿ª³¡¾°»áµ÷ÓÃ£¬²ÎÊı£ºNPCID¡£ÕâÀï²»ÒªÔÙ»ñÈ¡¶ÔÏó£¬Ó¦¸ÃÖ´ĞĞºÍÕâ¸öIDÓĞ¹ØµÄÒ»Ğ©ÇåÀí¹¤×÷¡£
 ["OnNpcLeave"] = function(dwID)
 	tBossID[dwID] = nil
 end,
 
---è‡ªå·±buffæ›´æ–°ï¼Œå‚æ•°ï¼šæ˜¯å¦ç§»é™¤(trueæ˜¯ç§»é™¤ï¼Œfalseæ˜¯æ·»åŠ )ï¼Œæ˜¯å¦èƒ½å–æ¶ˆï¼ŒbuffIDï¼Œç­‰çº§ï¼Œå±‚æ•°ï¼Œç»“æŸå¸§ï¼Œé€ æˆè¿™ä¸ªbuffçš„å¯¹è±¡ID
+--×Ô¼ºbuff¸üĞÂ£¬²ÎÊı£ºÊÇ·ñÒÆ³ı(trueÊÇÒÆ³ı£¬falseÊÇÌí¼Ó)£¬ÊÇ·ñÄÜÈ¡Ïû£¬buffID£¬µÈ¼¶£¬²ãÊı£¬½áÊøÖ¡£¬Ôì³ÉÕâ¸öbuffµÄ¶ÔÏóID
 ["OnMyBuff"] = function(bDelete, bCanCancel, dwBuffID, nLevel, nStackNum, nEndframe, dwSkillSrcID)
-	if bDelete then return end												--å¦‚æœæ˜¯ç§»é™¤ï¼Œä¸å¤„ç†
-	if not Table_BuffIsVisible(dwBuffID, nLevel) then return end			--ä¸å¯è§ä¸å¤„ç†
-	--if tBossID[dwSkillSrcID] then											--æ˜¯bosså¯¹æˆ‘é€ æˆçš„buff
-	if dwSkillSrcID ~= dwMyID then											--è¿‡æ»¤æ‰è‡ªå·±é€ æˆçš„
+	if bDelete then return end												--Èç¹ûÊÇÒÆ³ı£¬²»´¦Àí
+	if not Table_BuffIsVisible(dwBuffID, nLevel) then return end			--²»¿É¼û²»´¦Àí
+	--if tBossID[dwSkillSrcID] then											--ÊÇboss¶ÔÎÒÔì³ÉµÄbuff
+	if dwSkillSrcID ~= dwMyID then											--¹ıÂËµô×Ô¼ºÔì³ÉµÄ
 		local buffName = Table_GetBuffName(arg4, arg8)
-		s_Output("è‡ªå·±æ·»åŠ Buff: "..buffName..", ID: "..dwBuffID..", ç­‰çº§: "..nLevel..", å±‚æ•°: "..nStackNum..", å‰©ä½™æ—¶é—´(ç§’): "..((nEndframe - GetLogicFrameCount()) / 16)..", æºID: "..dwSkillSrcID)
+		s_Output("×Ô¼ºÌí¼ÓBuff: "..buffName..", ID: "..dwBuffID..", µÈ¼¶: "..nLevel..", ²ãÊı: "..nStackNum..", Ê£ÓàÊ±¼ä(Ãë): "..((nEndframe - GetLogicFrameCount()) / 16)..", Ô´ID: "..dwSkillSrcID)
 	end
 end,
 
---è‡ªå·±è¿›å…¥ç¦»å¼€æˆ˜æ–—ä¼šè°ƒç”¨
+--×Ô¼º½øÈëÀë¿ªÕ½¶·»áµ÷ÓÃ
 ["OnFight"] = function(bFight)
 	if bFight then
-		s_Output("å¼€å§‹æˆ˜æ–—")
+		s_Output("¿ªÊ¼Õ½¶·")
 	else
-		s_Output("ç»“æŸæˆ˜æ–—")
+		s_Output("½áÊøÕ½¶·")
 	end
 end,
 
---èœå•ç‚¹å‡»è°ƒè¯•å½“å‰æ’ä»¶ä¼šè°ƒç”¨ï¼Œå¯ä»¥åœ¨è¿™é‡Œè¾“å‡ºä¸€äº›è°ƒè¯•ä¿¡æ¯
+--²Ëµ¥µã»÷µ÷ÊÔµ±Ç°²å¼ş»áµ÷ÓÃ£¬¿ÉÒÔÔÚÕâÀïÊä³öÒ»Ğ©µ÷ÊÔĞÅÏ¢
 ["OnDebug"] = function()
-	s_Output(szPluginName.." OnDebug è¢«è°ƒç”¨")
+	s_Output(szPluginName.." OnDebug ±»µ÷ÓÃ")
 end,
 }
 
 
---å‘æ’ä»¶ç®¡ç†ç³»ç»Ÿè¿”å›å®šä¹‰çš„è¡¨
+--Ïò²å¼ş¹ÜÀíÏµÍ³·µ»Ø¶¨ÒåµÄ±í
 return tPlugin
