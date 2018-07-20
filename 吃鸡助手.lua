@@ -1,4 +1,4 @@
-local szPluginName = "吃鸡助手1.0"
+local szPluginName = "吃鸡助手1.1"
 
 --颜色表
 local tColor = {
@@ -8,6 +8,8 @@ local tColor = {
 ["蓝"] = {   0, 126, 255,  1.2 },
 ["紫"] = { 255,  45, 255,  1.4 },
 ["橙"] = { 255, 165,   0,  1.6 },
+["黄"] = { 255, 255,   0,  1.0 },
+["棕"] = {  94,  38,  18,  1.0 }
 }
 
 --需要显示的Doodad表
@@ -24,7 +26,27 @@ local tTempID = {
 
 [6820] = "紫",		--三阶装备
 [6954] = "紫",		--丢弃的装备·三
+[6821] = "紫",		--三阶武器
+[6953] = "紫",		--丢弃的武器·三
 
+[6955] = "橙",		--丢弃的武器·天
+[6884] = "橙",		--天阶装备
+[6956] = "橙",		--丢弃的装备·天
+[6883] = "橙",		--天阶武器
+
+[6824] = "黄",		--金疮药
+[6875] = "黄",		--行气散
+[6937] = "黄",		--丢弃的金创药
+[6943] = "黄",		--丢弃的行气散
+
+[6973] = "棕",		--流萤魂返花
+[6994] = "棕",		--驼铃
+[6863] = "棕",		--匿踪宝盒
+
+[6858] = "白",		--灌木
+[6857] = "白",		--砂石
+[6859] = "白",		--瓦罐
+[6833] = "白",		--叹息风碑
 }
 
 
@@ -49,6 +71,10 @@ local tPlugin = {
 	return true
 end,
 
+["OnTick"] = function()
+	Minimap.bSearchRedName = true			--打开小地图红名
+end,
+
 --Doodad进入场景，1个参数：DoodadID
 ["OnDoodadEnter"] = function(dwID)
 	local doodad = GetDoodad(dwID)
@@ -67,6 +93,20 @@ end,
 
 --Doodad离开场景，1个参数：DoodadID
 ["OnDoodadLeave"] = function(dwID)
+
+end,
+
+--玩家进入场景，1个参数：玩家ID 
+["OnPlayerEnter"] = function(dwID)
+	local me = GetClientPlayer()
+	local player = GetPlayer(dwID)			--这返回的对象，只有ID之类的，名字等等都还没同步获取不到，和自己无关的人，也没法获取血量，返回都是255
+	if player and player.dwID ~= me.dwID and IsEnemy(me.dwID, player.dwID) then			--如果有玩家，不是我，是敌人
+		s_util.AddText(TARGET.PLAYER, player.dwID, 255, 0, 0, 200, "敌人", 1.2, true)
+	end
+end,
+
+--玩家离开场景，1个参数：玩家ID
+["OnPlayerLeave"] = function(dwID)
 
 end,
 
