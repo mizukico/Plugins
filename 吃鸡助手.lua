@@ -1,11 +1,5 @@
 local szPluginName = "吃鸡助手1.1"
 
---上次拾取时的游戏帧
-local lastpicktime = GetLogicFrameCount()
-
---附件物品表
-local NearDoodad = {}
-
 --颜色表
 local tColor = {
 ["灰"] = { 169, 169, 169,  1.0 },			--红，绿，蓝，缩放
@@ -58,23 +52,6 @@ local tTempID = {
 [6822] = "灰",		--绷带
 }
 
---拾取函数，参数:物品模板ID，返回：该模板下有物品存在于6尺内，返回该物品。否则返回nil
-local function = PickUp(TemplateID)
-	for dwTemplateID, dooded in pairs(NearDoodad) do
-		if dwTemplateID == TemplateID then
-			for dwID, _  in pairs(dooded) do
-				local dooded = GetDoodad(dwID)
-				local dis = s_util.GetDistance(player, dooded)	
-				local player = GetClientPlayer()
-				if dooded and dis <=6 then
-					return dooded
-				end
-			end
-		end
-	end
-	return nil
-end
-
 --判断是否施放某个技能
 --参数(施放者id，施放技能ID，需确认的技能ID，距离，是否不需判定对自己释放)
 local function UpdateSkill (ID,dwSkillID,SkillID,Dis,bol)
@@ -105,7 +82,7 @@ local tPlugin = {
 ["nType"] = 5,
 
 --绑定地图，单个地图设置为地图ID，多个地图，设置为表。可以不设置，在游戏中手动开启
-["dwMapID"] = { 296, 297 },
+["dwMapID"] = {296, 297},
 
 --初始化函数，启用插件会调用
 ["OnInit"] = function()
@@ -120,24 +97,14 @@ end,
 ["OnTick"] = function()
 	Minimap.bSearchRedName = true			--打开小地图红名
 	local player = GetClientPlayer()
-	if(IsAltKeyDown() and IsKeyDown("F")) then --按下“Alt”+“F” 顺序交互
-		--橙武 橙装 紫武 紫装 蓝武 蓝装 金创 行气 马草 坐骑
-		local treasures = PickUp(6883) or PickUp(6884) or PickUp(6956) or PickUp(6955) or PickUp(6821) or PickUp(6953) or PickUp(6954) or PickUp(6820) or PickUp(6819) or PickUp(6951) or PickUp(6818) or PickUp(6952) or PickUp(6824) or PickUp(6875) or PickUp(6873) or PickUp(6863)
-		if treasures and GetLogicFrameCount() - lastpicktime >= 3 and player.nMoveState == MOVE_STATE.ON_STAND then
-			lastpicktime = GetLogicFrameCount()
-			OpenDoodad(player, treasures)
-		end
-	end
 end,
 
 --Doodad进入场景，1个参数：DoodadID
 ["OnDoodadEnter"] = function(dwID)
 	local doodad = GetDoodad(dwID)
-	if doodad then
-		local szColor = tTempID[doodad.dwTemplateID]
-		NearDoodad[dwTemplateID][dwID] = true
-		if szColor then
-			local t = tColor[szColor]
+	if doodad then 
+		if tTempID[doodad.dwTemplateID] then
+			local t = tColor[tTempID[doodad.dwTemplateID]]
 			if t then
 				local r, g, b, s = unpack(t)
 				--在游戏对象脚下添加文本
@@ -145,12 +112,6 @@ end,
 			end
 		end
 	end
-	s_Output(doodad.szName)
-	s_Output("ID"..doodad.dwID)
-	s_Output("模板ID"..doodad.dwTemplateID)
-	s_Output("类型"..doodad.nKind)
-	s_Output(doodad.CanDialog)
-	s_Output(doodad.IsSelectable)
 end,
 
 --Doodad离开场景，1个参数：DoodadID
@@ -179,17 +140,27 @@ end,
 	--撼地 20尺，千斤坠 20尺，疾 15尺
 	if UpdateSkill(dwID,dwSkillID,13424,20) or UpdateSkill(dwID,dwSkillID,18604,20) or UpdateSkill(dwID,dwSkillID,424,15) then 
 		s_util.SetTimer("tkongzhi1")
-		s_Output("tkongzhi1")
+		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
 	--盾猛 12尺，龙跃于渊 20尺，龙战于野 20尺，棒打狗头 20尺，割据秦宫 10尺，断魂刺 27尺，破坚阵 4尺
 	if UpdateSkill(dwID,dwSkillID,13046,12) or UpdateSkill(dwID,dwSkillID,5262,20) or UpdateSkill(dwID,dwSkillID,5266,20) or UpdateSkill(dwID,dwSkillID,5259,20) or UpdateSkill(dwID,dwSkillID,16479,10) or UpdateSkill(dwID,dwSkillID,428,27) or UpdateSkill(dwID,dwSkillID,426,4) then 
 		s_util.SetTimer("tkongzhi2")
-		s_Output("tkongzhi2")
+		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
-	--浮光掠影 30尺，冥月度心 12尺，紫气东来 20尺，擒龙诀 6尺，乱洒 20尺，梵音 20尺
-	if UpdateSkill(dwID,dwSkillID,3112,30) or UpdateSkill(dwID,dwSkillID,18629,12) or UpdateSkill(dwID,dwSkillID,2681,20) or UpdateSkill(dwID,dwSkillID,260,6) or UpdateSkill(dwID,dwSkillID,2645,20) or UpdateSkill(dwID,dwSkillID,568,20) then 
+	--冥月度心 12尺，紫气东来 20尺，擒龙诀 6尺，乱洒 20尺
+	if UpdateSkill(dwID,dwSkillID,18629,12) or UpdateSkill(dwID,dwSkillID,2681,20) or UpdateSkill(dwID,dwSkillID,260,6) or UpdateSkill(dwID,dwSkillID,2645,20) then 
 		s_util.SetTimer("tbaofa1")
-		s_Output("tbaofa1")
+		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
+	end
+	--梵音 20尺
+	if UpdateSkill(dwID,dwSkillID,568,20,true) then
+		s_util.SetTimer("tbaofa2")
+		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
+	end
+	--浮光掠影 30尺
+	if UpdateSkill(dwID,dwSkillID,3112,30) then
+		s_util.SetTimer("tbaofa3")
+		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
 end,
 
