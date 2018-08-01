@@ -68,7 +68,7 @@ local tPlugin = {
 ["nType"] = 5,
 
 --绑定地图，单个地图设置为地图ID，多个地图，设置为表。可以不设置，在游戏中手动开启
-["dwMapID"] = 0,
+["dwMapID"] = 322,
 
 --初始化函数，启用插件会调用
 ["OnInit"] = function()
@@ -126,7 +126,11 @@ end,
 			if t then
 				local r, g, b, s = unpack(t)
 				--在游戏对象脚下添加文本
-				s_util.AddText(TARGET.NPC, npc.dwID, r, g, b, 255, npc.szName, 1.5, true)		--对象类型，对象ID, 红，绿，蓝，透明度，文本，文字大小缩放，是否显示距离
+				--对象类型，对象ID, 红，绿，蓝，透明度，文本，文字大小缩放，是否显示距离
+				s_util.AddText(TARGET.NPC, npc.dwID, r, g, b, 255, npc.szName, 1.5, true)
+				--在游戏对象脚下添加圆圈
+				--对象类型，对象ID, 红，绿，蓝，透明度，角度，半径（尺）
+				s_util.AddShape(TARGET.NPC, npc.dwID, r, g, b, 80, 360, 2)
 			end
 		end
 	end
@@ -161,11 +165,11 @@ end,
 		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
 	--浮光掠影 30尺
-	if UpdateSkill(dwID,dwSkillID,3112,30) then
+	if UpdateSkill(dwID,dwSkillID,3112,30,true) then
 		s_util.SetTimer("tbaofa3")
 		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
-		--盾立
+	--盾立
 	if dwSkillID==13067 and target and target.dwID==dwID then s_util.SetTimer("dunli") end
 end,
 
