@@ -1,8 +1,12 @@
 local szPluginName = "吃鸡助手1.2"
 
+--队伍记录表
 local Party = {}
-
+--未分队player记录表
 local NoParty = {}
+--伪装记录表
+local WeiZhuang = {}
+
 --颜色表
 local tColor = {
 ["灰"] = { 169, 169, 169,  1.0 },			--红，绿，蓝，缩放
@@ -115,14 +119,16 @@ end,
 		end
 	end
 	--疑似伪装标记黄圈
-	if doodad and (doodad.dwTemplateID == 6858 or doodad.dwTemplateID == 6857 or doodad.dwTemplateID == 6859) and s_util.GetDistance(me,doodad) <= 100 then
+	if (doodad and (doodad.dwTemplateID == 6858 or doodad.dwTemplateID == 6857 or doodad.dwTemplateID == 6859) and s_util.GetDistance(me,doodad) <= 100 ) or WeiZhuang[doodad.dwID] then
+		if not WeiZhuang[doodad.dwID] then
+			WeiZhuang[doodad.dwID] = true
+		end
 		s_util.AddShape(TARGET.DOODAD, doodad.dwID, 255, 255, 0, 80, 360, 2)
 	end
 end,
 
 --Doodad离开场景，1个参数：DoodadID
 ["OnDoodadLeave"] = function(dwID)
-
 end,
 
 --玩家进入场景，1个参数：玩家ID 
@@ -174,6 +180,15 @@ end,
 	--盾立
 	if dwSkillID==13067 and target and target.dwID==dwID then s_util.SetTimer("dunli") end
 end,
+
+--有聊天信息会调用，参数： 对象ID，内容，名字，频道
+["OnTalk"] = function(dwID, szText, szName, nChannel)
+	--[[if IsPlayer(dwID) then return end									--过滤掉玩家的聊天信息
+	if tBossID[dwID] then				--只输出Boss说的话
+		s_Output("OnTalk: "..szName.." 说 "..szText..", 频道: "..nChannel)
+	end--]]
+end,
+
 
 ["OnDebug"] = function()
 	local me = GetClientPlayer()		

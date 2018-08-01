@@ -81,7 +81,7 @@ local tPlugin = {
 end,
 
 ["OnTick"] = function()
-	Minimap.bSearchRedName = false			--打开小地图红名
+	Minimap.bSearchRedName = false			--关闭小地图红名
 	local player = GetClientPlayer()
 end,
 
