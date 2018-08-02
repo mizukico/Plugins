@@ -45,13 +45,14 @@ local function UpdateSkill (ID,dwSkillID,SkillID,Dis,bol)
 	local target, targetClass = s_util.GetTarget(wanjia)
 	local player = GetClientPlayer()
 	local distance = s_util.GetDistance(player,wanjia)
-	if not bol then
+	if not bol and target then
 		if SkillID == dwSkillID and distance<=Dis and target.dwID==player.dwID then
 			return true
 		else
 			return false
 		end
-	else
+	end
+	if bol then
 		if SkillID == dwSkillID and distance<=Dis then
 			return true
 		else
@@ -121,7 +122,7 @@ end,
 ["OnNpcEnter"] = function(dwID)
 	local npc = GetNpc(dwID)
 	if npc then
-		if npc[npc.dwTemplateID] then
+		if tTempID[npc.dwTemplateID] then
 			local t = tColor[tTempID[npc.dwTemplateID]]
 			if t then
 				local r, g, b, s = unpack(t)
@@ -130,7 +131,7 @@ end,
 				s_util.AddText(TARGET.NPC, npc.dwID, r, g, b, 255, npc.szName, 1.5, true)
 				--在游戏对象脚下添加圆圈
 				--对象类型，对象ID, 红，绿，蓝，透明度，角度，半径（尺）
-				s_util.AddShape(TARGET.NPC, npc.dwID, r, g, b, 80, 360, 2)
+				s_util.AddShape(TARGET.NPC, npc.dwID, r, g, b, 120, 360, 2)
 			end
 		end
 	end

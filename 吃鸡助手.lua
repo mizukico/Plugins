@@ -6,7 +6,9 @@ local Party = {}
 local NoParty = {}
 --伪装记录表
 local WeiZhuang = {}
-
+--队伍编号
+local PartyNumber = 1
+local Other = nil
 --颜色表
 local tColor = {
 ["灰"] = { 169, 169, 169,  1.0 },			--红，绿，蓝，缩放
@@ -64,19 +66,28 @@ local function UpdateSkill (ID,dwSkillID,SkillID,Dis,bol)
 	local target, targetClass = s_util.GetTarget(wanjia)
 	local player = GetClientPlayer()
 	local distance = s_util.GetDistance(player,wanjia)
-	if not bol then
+	if not bol and target then
 		if SkillID == dwSkillID and distance<=Dis and target.dwID==player.dwID then
 			return true
 		else
 			return false
 		end
-	else
+	end
+	if bol then
 		if SkillID == dwSkillID and distance<=Dis then
 			return true
 		else
 			return false
 		end
 	end
+end
+
+--
+local function InParty (ID)
+	for k,v in pairs(Party) do
+		if v[ID] then return k end
+	end
+	return false
 end
 ------------------------------------------------插件表，设置插件信息和回调函数------------------------------------------------
 local tPlugin = {
@@ -91,17 +102,41 @@ local tPlugin = {
 
 --初始化函数，启用插件会调用
 ["OnInit"] = function()
-	local player = GetClientPlayer()
-	if not player then return false end
+	local me = GetClientPlayer()
+	if not me then return false end
 	s_util.OutputSysMsg("插件 "..szPluginName.." 已启用")
-	s_util.OutputSysMsg("欢迎 "..player.szName.." 使用本插件")
-	s_util.OutputSysMsg("插件作者：xxxx")
+	s_util.OutputSysMsg("欢迎 "..me.szName.." 使用本插件")	
+	Party[PartyNumber] = {}
+	Party[PartyNumber][me.dwID] = true
+    for _,v in pairs(GetAllPlayer()) do		--遍历所有玩家
+        if IsParty(me.dwID, v.dwID) then
+            Party[PartyNumber][v.dwID] = true
+		else
+			Other = v.dwID
+			NoParty[v.dwID] = true
+		end
+	end
 	return true
 end,
 
 ["OnTick"] = function()
 	Minimap.bSearchRedName = true			--打开小地图红名
 	local player = GetClientPlayer()
+	if NoParty and Other then	--未分队表中有人则开始循环
+		PartyNumber = PartyNumber + 1
+		local temp = Other
+		Party[PartyNumber] = {}
+		Party[PartyNumber][temp] = true
+		NoParty[temp] = nil
+		for k,v in pairs(NoParty) do
+			if IsParty(k, temp) then
+				Party[PartyNumber][k] = true
+				NoParty[k] = nil
+			else
+				Other = k
+			end
+		end
+	end
 end,
 
 --Doodad进入场景，1个参数：DoodadID
@@ -118,8 +153,8 @@ end,
 			end
 		end
 	end
-	--疑似伪装标记黄圈
-	if (doodad and (doodad.dwTemplateID == 6858 or doodad.dwTemplateID == 6857 or doodad.dwTemplateID == 6859) and s_util.GetDistance(me,doodad) <= 100 ) or WeiZhuang[doodad.dwID] then
+	--疑似伪装标记黄圈,90尺内突然出现的doodad会被标记为伪装
+	if (doodad and (doodad.dwTemplateID == 6858 or doodad.dwTemplateID == 6857 or doodad.dwTemplateID == 6859) and s_util.GetDistance(me,doodad) < 90 ) or WeiZhuang[doodad.dwID] then
 		if not WeiZhuang[doodad.dwID] then
 			WeiZhuang[doodad.dwID] = true
 		end
@@ -135,12 +170,25 @@ end,
 ["OnPlayerEnter"] = function(dwID)
 	local me = GetClientPlayer()
 	local player = GetPlayer(dwID)	--这返回的对象，只有ID之类的，名字等等都还没同步获取不到，和自己无关的人，也没法获取血量，返回都是255
-	if player and player.dwID ~= me.dwID and IsEnemy(me.dwID, player.dwID) then			--如果有玩家，不是我，是敌人
-		if Party[player.dwID] then
-			s_util.AddText(TARGET.PLAYER, player.dwID, 255, 0, 0, 200, "敌-队"..tostring(Party[player.dwID]), 1.3, true)
-		else
-			s_util.AddText(TARGET.PLAYER, player.dwID, 255, 0, 0, 200, "敌-队#？", 1.3, true)
+	if not InParty(player.dwID) then
+		local party_bol = nil
+		for k,v in pairs(Party) do
+			for a,b in pairs(v) do
+				if IsParty(a, player.dwID) then
+					Party[k][player.dwID] = true
+					party_bol = 1
+				end
+			end
+			if party_bol then break end
 		end
+		if not party_bol then
+			PartyNumber = PartyNumber + 1
+			Party[PartyNumber]={}
+			Party[PartyNumber][player.dwID] = true
+		end
+	end
+	if player and player.dwID ~= me.dwID and IsEnemy(me.dwID, player.dwID) and InParty(player.dwID) then			--如果有玩家，不是我，是敌人
+		s_util.AddText(TARGET.PLAYER, player.dwID, 255, 0, 0, 200, "敌-队"..tostring(InParty(player.dwID)), 1.3, true)
 	end
 end,
 
@@ -189,38 +237,16 @@ end,
 	end--]]
 end,
 
-
 ["OnDebug"] = function()
-	local me = GetClientPlayer()		
-    local OthdwID = 0		    
-    for _,v in ipairs(GetAllPlayer()) do		--遍历所有玩家
-        if IsParty(me.dwID, v.dwID) then
-            Party[v.dwID] = 0
-		else
-			OthdwID = v.dwID
-			NoParty[v.dwID] = true
+	local count1 = 0
+	local count2 = 0
+	for k,v in pairs(Party) do
+		count1 = count1 + 1
+		for a,b in pairs(v) do
+			count2 = count2 + 1
 		end
 	end
-	for team = 1, 19, 1 do
-		if NoParty[OthdwID] then
-			local temp = OthdwID
-			Party[temp] = team
-			NoParty[temp] = nil
-			for i,_ in ipairs(NoParty) do
-				if IsParty(i, temp) then
-					Party[i] = team
-					NoParty[i] = nil
-				else
-					OthdwID = i
-				end
-			end
-		end
-	end
-	local count = 0
-	for k,v in ipairs(Party) do
-    	count = count + 1
-	end
-	s_util.OutputSysMsg(szPluginName.."共有玩家"..tostring(count).."名，队伍记录完成")
+	s_util.OutputSysMsg("记录玩家"..tostring(count2).."名，队伍"..tostring(count1).."队")
 end,
 }
 
