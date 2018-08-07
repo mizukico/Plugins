@@ -1,14 +1,8 @@
 local szPluginName = "吃鸡助手1.2"
 
---队伍记录表
-local Party = {}
---未分队player记录表
-local NoParty = {}
---伪装记录表
-local WeiZhuang = {}
---队伍编号
-local PartyNumber = 1
-local Other = nil
+--伪装记录
+local WeiZhuangID = nil
+
 --颜色表
 local tColor = {
 ["灰"] = { 169, 169, 169,  1.0 },			--红，绿，蓝，缩放
@@ -46,7 +40,6 @@ local tTempID = {
 [6943] = "黄",		--丢弃的行气散
 
 [6973] = "棕",		--流萤魂返花
-[6994] = "棕",		--驼铃
 [6863] = "棕",		--匿踪宝盒
 [6872] = "棕",      --风化的石马
 [6873] = "棕",      --鬼黄藤
@@ -82,12 +75,37 @@ local function UpdateSkill (ID,dwSkillID,SkillID,Dis,bol)
 	end
 end
 
---
-local function InParty (ID)
-	for k,v in pairs(Party) do
-		if v[ID] then return k end
+local tForceTitle = {
+	[0] = "侠",
+	[7] = "唐",
+	[1] = "秃",
+	[2] = "花",
+	[4] = "咩",
+	[8] = "叽",
+	[9] = "丐",
+	[5] = "秀",
+	[10] = "喵",
+	[22] = "歌",
+	[3] = "策",
+	[6] = "毒",
+	[23] = "霸",
+	[21] = "苍",
+}
+local tPlayerForce = {}
+local tPlayer = {}
+
+-- 获取玩家门派名称
+local GetForceTitle = function(playerObject)
+	local dwID = playerObject.dwID
+	local nForce = playerObject.dwForceID
+	if tPlayerForce[dwID] and tPlayerForce[dwID] > 0 then
+		return tForceTitle[tPlayerForce[dwID]]
 	end
-	return false
+	if nForce > 0 and tForceTitle[nForce] then
+		tPlayerForce[dwID] = nForce
+		return tForceTitle[nForce]
+	end
+	return tForceTitle[0]
 end
 ------------------------------------------------插件表，设置插件信息和回调函数------------------------------------------------
 local tPlugin = {
@@ -106,34 +124,19 @@ local tPlugin = {
 	if not me then return false end
 	s_util.OutputSysMsg("插件 "..szPluginName.." 已启用")
 	s_util.OutputSysMsg("欢迎 "..me.szName.." 使用本插件")	
-	Party[PartyNumber] = {}
-	Party[PartyNumber][me.dwID] = true
-    for _,v in pairs(GetAllPlayer()) do		--遍历所有玩家
-        if IsParty(me.dwID, v.dwID) then
-            Party[PartyNumber][v.dwID] = true
-		else
-			Other = v.dwID
-			NoParty[v.dwID] = true
-		end
-	end
 	return true
 end,
 
 ["OnTick"] = function()
 	Minimap.bSearchRedName = true			--打开小地图红名
-	local player = GetClientPlayer()
-	if NoParty and Other then	--未分队表中有人则开始循环
-		PartyNumber = PartyNumber + 1
-		local temp = Other
-		Party[PartyNumber] = {}
-		Party[PartyNumber][temp] = true
-		NoParty[temp] = nil
-		for k,v in pairs(NoParty) do
-			if IsParty(k, temp) then
-				Party[PartyNumber][k] = true
-				NoParty[k] = nil
-			else
-				Other = k
+	local nFrame, me = GetLogicFrameCount(), GetClientPlayer()
+	if not me or (nFrame % 4) ~= 0 then return end
+	for i,v in ipairs(GetAllPlayer()) do		--遍历
+		if v and v.dwID ~= me.dwID then			--如果有玩家，不是我
+			local dwForceTitle = GetForceTitle(v)
+			if IsEnemy(me.dwID, v.dwID) then	--如果是敌人
+				local hpRatio, _ = math.modf(100 * v.nCurrentLife / v.nMaxLife)
+				s_util.AddText(TARGET.PLAYER, v.dwID, 255, 0, 0, 200, dwForceTitle..hpRatio.."·", 1.3, true)
 			end
 		end
 	end
@@ -149,16 +152,17 @@ end,
 			if t then
 				local r, g, b, s = unpack(t)
 				--在游戏对象脚下添加文本
-				s_util.AddText(TARGET.DOODAD, doodad.dwID, r, g, b, 255, doodad.szName, s, true)		--对象类型，对象ID, 红，绿，蓝，透明度，文本，文字大小缩放，是否显示距离
+				s_util.AddText(TARGET.DOODAD, doodad.dwID, r, g, b, 255, doodad.szName, s, true)--对象类型，对象ID, 红，绿，蓝，透明度，文本，文字大小缩放，是否显示距离
 			end
 		end
-	end
-	--疑似伪装标记黄圈,90尺内突然出现的doodad会被标记为伪装
-	if (doodad and (doodad.dwTemplateID == 6858 or doodad.dwTemplateID == 6857 or doodad.dwTemplateID == 6859) and s_util.GetDistance(me,doodad) < 90 ) or WeiZhuang[doodad.dwID] then
-		if not WeiZhuang[doodad.dwID] then
-			WeiZhuang[doodad.dwID] = true
+		--将丢弃的装备记录为最小ID，大于此ID的判定为伪装
+		if not WeiZhuangID and (doodad.dwTemplateID >= 6949 and doodad.dwTemplateID <= 6954) then
+			WeiZhuangID = doodad.dwID
 		end
-		s_util.AddShape(TARGET.DOODAD, doodad.dwID, 255, 255, 0, 80, 360, 2)
+		--伪装标记黄圈
+		if (doodad.dwTemplateID >= 6857 and doodad.dwTemplateID <= 6859) and WeiZhuangID and doodad.dwID > WeiZhuangID then
+			s_util.AddShape(TARGET.DOODAD, doodad.dwID, 255, 255, 0, 80, 360, 2)
+		end
 	end
 end,
 
@@ -168,28 +172,6 @@ end,
 
 --玩家进入场景，1个参数：玩家ID 
 ["OnPlayerEnter"] = function(dwID)
-	local me = GetClientPlayer()
-	local player = GetPlayer(dwID)	--这返回的对象，只有ID之类的，名字等等都还没同步获取不到，和自己无关的人，也没法获取血量，返回都是255
-	if not InParty(player.dwID) then
-		local party_bol = nil
-		for k,v in pairs(Party) do
-			for a,b in pairs(v) do
-				if IsParty(a, player.dwID) then
-					Party[k][player.dwID] = true
-					party_bol = 1
-				end
-			end
-			if party_bol then break end
-		end
-		if not party_bol then
-			PartyNumber = PartyNumber + 1
-			Party[PartyNumber]={}
-			Party[PartyNumber][player.dwID] = true
-		end
-	end
-	if player and player.dwID ~= me.dwID and IsEnemy(me.dwID, player.dwID) and InParty(player.dwID) then			--如果有玩家，不是我，是敌人
-		s_util.AddText(TARGET.PLAYER, player.dwID, 255, 0, 0, 200, "敌-队"..tostring(InParty(player.dwID)), 1.3, true)
-	end
 end,
 
 --玩家离开场景，1个参数：玩家ID
@@ -231,22 +213,10 @@ end,
 
 --有聊天信息会调用，参数： 对象ID，内容，名字，频道
 ["OnTalk"] = function(dwID, szText, szName, nChannel)
-	--[[if IsPlayer(dwID) then return end									--过滤掉玩家的聊天信息
-	if tBossID[dwID] then				--只输出Boss说的话
-		s_Output("OnTalk: "..szName.." 说 "..szText..", 频道: "..nChannel)
-	end--]]
 end,
 
 ["OnDebug"] = function()
-	local count1 = 0
-	local count2 = 0
-	for k,v in pairs(Party) do
-		count1 = count1 + 1
-		for a,b in pairs(v) do
-			count2 = count2 + 1
-		end
-	end
-	s_util.OutputSysMsg("记录玩家"..tostring(count2).."名，队伍"..tostring(count1).."队")
+	s_Output("记录伪装最小ID为："..tostring(WeiZhuangID))
 end,
 }
 
