@@ -144,6 +144,7 @@ end,
 --施放技能调用， 参数：对象ID， 技能ID， 技能等级
 ["OnCastSkill"] = function(dwID, dwSkillID, dwLevel)
 	local player = GetClientPlayer()
+	local target, targetClass = s_util.GetTarget(player)
 	if not IsPlayer(dwID) or not IsEnemy(player.dwID,dwID) then return end	--过滤掉非敌对玩家
 	--撼地 20尺，千斤坠 20尺，疾 15尺
 	if UpdateSkill(dwID,dwSkillID,13424,20) or UpdateSkill(dwID,dwSkillID,18604,20) or UpdateSkill(dwID,dwSkillID,424,15) then 

@@ -1,7 +1,34 @@
 local szPluginName = "吃鸡助手1.2"
 
 --伪装记录
-local WeiZhuangID = nil
+g_MacroVars.chijizhushou_WeiZhuangID = nil
+g_MacroVars.chijizhushou_gouxuan = false
+
+--扳手菜单
+local chijimenu = {
+	szOption = "吃鸡助手工具",
+	{
+	szOption = "重置伪装ID",
+	fnAction =function() 
+		g_MacroVars.chijizhushou_WeiZhuangID = nil
+		s_util.OutputSysMsg("伪装最小ID已重置") 
+	end,
+	},
+	{
+	szOption = "确认伪装ID",
+	fnAction =function() 
+		s_util.OutputSysMsg("伪装最小ID为："..tostring(g_MacroVars.chijizhushou_WeiZhuangID)) 
+	end,
+	},
+	{
+	szOption = "勾选测试",
+	bCheck = true, 
+	bChecked = g_MacroVars.chijizhushou_gouxuan,
+	fnAction =function() 
+		g_MacroVars.chijizhushou_gouxuan = not g_MacroVars.chijizhushou_gouxuan
+	end,
+	},
+}
 
 --颜色表
 local tColor = {
@@ -107,6 +134,7 @@ local GetForceTitle = function(playerObject)
 	end
 	return tForceTitle[0]
 end
+
 ------------------------------------------------插件表，设置插件信息和回调函数------------------------------------------------
 local tPlugin = {
 --插件在菜单中显示的名字。必须设置
@@ -123,7 +151,21 @@ local tPlugin = {
 	local me = GetClientPlayer()
 	if not me then return false end
 	s_util.OutputSysMsg("插件 "..szPluginName.." 已启用")
-	s_util.OutputSysMsg("欢迎 "..me.szName.." 使用本插件")	
+	s_util.OutputSysMsg("欢迎 "..me.szName.." 使用本插件")
+	g_MacroVars.chijizhushou_WeiZhuangID = nil
+	local menuisaction = false
+	--判断菜单是否已加载
+	for i,v in ipairs(TraceButton_GetAddonMenu()) do
+		if type(v)=="table" then
+			if v.szOption and v.szOption == "吃鸡助手工具" then
+				menuisaction = true
+				break
+			end
+		end
+	end
+	if not menuisaction then
+		TraceButton_AppendAddonMenu({chijimenu})
+	end
 	return true
 end,
 
@@ -134,11 +176,14 @@ end,
 	for i,v in ipairs(GetAllPlayer()) do		--遍历
 		if v and v.dwID ~= me.dwID then			--如果有玩家，不是我
 			local dwForceTitle = GetForceTitle(v)
-			if IsEnemy(me.dwID, v.dwID) then	--如果是敌人
+			if IsEnemy(me.dwID, v.dwID) and v.nMoveState ~= MOVE_STATE.ON_DEATH then	--如果是敌人
 				local hpRatio, _ = math.modf(100 * v.nCurrentLife / v.nMaxLife)
 				s_util.AddText(TARGET.PLAYER, v.dwID, 255, 0, 0, 200, dwForceTitle..hpRatio.."·", 1.3, true)
 			end
 		end
+	end
+	if g_MacroVars.chijizhushou_gouxuan then
+		s_util.OutputSysMsg("已勾选") 
 	end
 end,
 
@@ -146,6 +191,7 @@ end,
 ["OnDoodadEnter"] = function(dwID)
 	local doodad = GetDoodad(dwID)
 	local me = GetClientPlayer()
+	local WeiZhuangID = g_MacroVars.chijizhushou_WeiZhuangID
 	if doodad then 
 		if tTempID[doodad.dwTemplateID] then
 			local t = tColor[tTempID[doodad.dwTemplateID]]
@@ -156,12 +202,12 @@ end,
 			end
 		end
 		--将丢弃的装备记录为最小ID，大于此ID的判定为伪装
-		if not WeiZhuangID and (doodad.dwTemplateID >= 6949 and doodad.dwTemplateID <= 6954) then
-			WeiZhuangID = doodad.dwID
+		if not WeiZhuangID and doodad.dwTemplateID >= 6949 and doodad.dwTemplateID <= 6954 then
+			g_MacroVars.chijizhushou_WeiZhuangID, WeiZhuangID = doodad.dwID, doodad.dwID
 		end
 		--伪装标记黄圈
-		if (doodad.dwTemplateID >= 6857 and doodad.dwTemplateID <= 6859) and WeiZhuangID and doodad.dwID > WeiZhuangID then
-			s_util.AddShape(TARGET.DOODAD, doodad.dwID, 255, 255, 0, 80, 360, 2)
+		if doodad.dwTemplateID >= 6857 and doodad.dwTemplateID <= 6859 and WeiZhuangID and doodad.dwID > WeiZhuangID then
+			s_util.AddShape(TARGET.DOODAD, doodad.dwID, 255, 255, 0, 100, 360, 2)
 		end
 	end
 end,
@@ -181,6 +227,7 @@ end,
 --施放技能调用， 参数：对象ID， 技能ID， 技能等级
 ["OnCastSkill"] = function(dwID, dwSkillID, dwLevel)
 	local player = GetClientPlayer()
+	local target, targetClass = s_util.GetTarget(player)
 	if not IsPlayer(dwID) or not IsEnemy(player.dwID,dwID) then return end	--过滤掉非敌对玩家
 	--撼地 20尺，千斤坠 20尺，疾 15尺
 	if UpdateSkill(dwID,dwSkillID,13424,20) or UpdateSkill(dwID,dwSkillID,18604,20) or UpdateSkill(dwID,dwSkillID,424,15) then 
@@ -216,7 +263,6 @@ end,
 end,
 
 ["OnDebug"] = function()
-	s_Output("记录伪装最小ID为："..tostring(WeiZhuangID))
 end,
 }
 
