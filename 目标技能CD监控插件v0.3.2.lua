@@ -46,24 +46,15 @@ local function printT(t)
     s_Output()
 end
 
-local function UpdateSkill (ID,dwSkillID,SkillID,Dis,bol)
+local function UpdateSkill (ID,dwSkillID,SkillID,Dis)
 	local wanjia = GetPlayer(ID)
 	local target, targetClass = s_util.GetTarget(wanjia)
 	local player = GetClientPlayer()
 	local distance = s_util.GetDistance(player,wanjia)
-	if not bol and target then
-		if SkillID == dwSkillID and distance<=Dis and target.dwID==player.dwID then
-			return true
-		else
-			return false
-		end
-	end
-	if bol then
-		if SkillID == dwSkillID and distance<=Dis then
-			return true
-		else
-			return false
-		end
+	if SkillID == dwSkillID and distance<=Dis then
+		return true
+	else
+		return false
 	end
 end
 
@@ -638,33 +629,35 @@ end,
 end,
 
 --Ê©·Å¼¼ÄÜµ÷ÓÃ£¬ ²ÎÊý£º¶ÔÏóID£¬ ¼¼ÄÜID£¬ ¼¼ÄÜµÈ¼¶
-["OnCastSkill"] = function(dwID, dwSkillID, dwLevel)
+["OnCastSkill"] = function(dwID, dwSkillID, dwLevel, targetClass, tidOrx, y, z)
 	_RN_TargetMon.OnSkillCast(dwID,dwSkillID,dwLevel)
 	local player = GetClientPlayer()
 	local target, targetClass = s_util.GetTarget(player)
 	if not IsPlayer(dwID) or not IsEnemy(player.dwID,dwID) then return end	--¹ýÂËµô·ÇµÐ¶ÔÍæ¼Ò
-	--º³µØ 20³ß£¬Ç§½ï×¹ 20³ß£¬¼² 15³ß
-	if UpdateSkill(dwID,dwSkillID,13424,20) or UpdateSkill(dwID,dwSkillID,18604,20) or UpdateSkill(dwID,dwSkillID,424,15) then 
-		s_util.SetTimer("tkongzhi1")
-		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
-	end
-	--¶ÜÃÍ 12³ß£¬ÁúÔ¾ÓÚÔ¨ 20³ß£¬ÁúÕ½ÓÚÒ° 20³ß£¬°ô´ò¹·Í· 20³ß£¬¸î¾ÝÇØ¹¬ 10³ß£¬¶Ï»ê´Ì 27³ß£¬ÆÆ¼áÕó 4³ß
-	if UpdateSkill(dwID,dwSkillID,13046,12) or UpdateSkill(dwID,dwSkillID,5262,20) or UpdateSkill(dwID,dwSkillID,5266,20) or UpdateSkill(dwID,dwSkillID,5259,20) or UpdateSkill(dwID,dwSkillID,16479,10) or UpdateSkill(dwID,dwSkillID,428,27) or UpdateSkill(dwID,dwSkillID,426,4) then 
-		s_util.SetTimer("tkongzhi2")
-		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
-	end
-	--Ú¤ÔÂ¶ÈÐÄ 12³ß£¬×ÏÆø¶«À´ 20³ß£¬ÇÜÁú¾÷ 6³ß£¬ÂÒÈ÷ 20³ß
-	if UpdateSkill(dwID,dwSkillID,18629,12) or UpdateSkill(dwID,dwSkillID,2681,20) or UpdateSkill(dwID,dwSkillID,260,6) or UpdateSkill(dwID,dwSkillID,2645,20) then 
-		s_util.SetTimer("tbaofa1")
-		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
+	if tidOrx == player.dwID then
+		--º³µØ 20³ß£¬Ç§½ï×¹ 20³ß£¬¼² 15³ß
+		if UpdateSkill(dwID,dwSkillID,13424,20) or UpdateSkill(dwID,dwSkillID,18604,20) or UpdateSkill(dwID,dwSkillID,424,15) then 
+			s_util.SetTimer("tkongzhi1")
+			s_Output(Table_GetSkillName(dwSkillID, dwLevel))
+		end
+		--¶ÜÃÍ 12³ß£¬ÁúÔ¾ÓÚÔ¨ 20³ß£¬ÁúÕ½ÓÚÒ° 20³ß£¬°ô´ò¹·Í· 20³ß£¬¸î¾ÝÇØ¹¬ 10³ß£¬¶Ï»ê´Ì 27³ß£¬ÆÆ¼áÕó 4³ß
+		if UpdateSkill(dwID,dwSkillID,13046,12) or UpdateSkill(dwID,dwSkillID,5262,20) or UpdateSkill(dwID,dwSkillID,5266,20) or UpdateSkill(dwID,dwSkillID,5259,20) or UpdateSkill(dwID,dwSkillID,16479,10) or UpdateSkill(dwID,dwSkillID,428,27) or UpdateSkill(dwID,dwSkillID,426,4) then 
+			s_util.SetTimer("tkongzhi2")
+			s_Output(Table_GetSkillName(dwSkillID, dwLevel))
+		end
+		--Ú¤ÔÂ¶ÈÐÄ 12³ß£¬×ÏÆø¶«À´ 20³ß£¬ÇÜÁú¾÷ 6³ß£¬ÂÒÈ÷ 20³ß
+		if UpdateSkill(dwID,dwSkillID,18629,12) or UpdateSkill(dwID,dwSkillID,2681,20) or UpdateSkill(dwID,dwSkillID,240,6) or UpdateSkill(dwID,dwSkillID,2645,20) then 
+			s_util.SetTimer("tbaofa1")
+			s_Output(Table_GetSkillName(dwSkillID, dwLevel))
+		end
 	end
 	--èóÒô 20³ß
-	if UpdateSkill(dwID,dwSkillID,568,20,true) then
+	if UpdateSkill(dwID,dwSkillID,568,20) then
 		s_util.SetTimer("tbaofa2")
 		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
 	--¸¡¹âÂÓÓ° 30³ß
-	if UpdateSkill(dwID,dwSkillID,3112,30,true) then
+	if UpdateSkill(dwID,dwSkillID,3112,30) then
 		s_util.SetTimer("tbaofa3")
 		s_Output(Table_GetSkillName(dwSkillID, dwLevel))
 	end
